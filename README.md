@@ -23,6 +23,19 @@ The agent solves this custom environment using **Tabular Q-Learning**. It learns
 ### Data Persistence
 I need to keep the **training** data as both a **CSV** file for humans and an **NPY** file for machines. So I coded basic Python **structures** to keep the files and, if **needed**, read the file.
 
+### The Q-Learning Algorithm
+We utilized Q-Learning, an off-policy algorithm that seeks to find the best action to take given the current state. The "brain" of the agent is represented by a **Q-Table** (Lookup Table).
+
+The agent updates its knowledge using the **Bellman Equation**:
+
+> **Q(s,a) = Q(s,a) + α * [R + γ * max Q(s',a') - Q(s,a)]**
+
+* **Q(s,a)**: Current confidence value of taking action *a* in state *s*.
+* **R**: Immediate Reward received for the action.
+* **max Q(s',a')**: Maximum expected future reward (Strategic vision).
+* **α (Alpha)**: Learning Rate. Determines how fast new information overrides old habits.
+* **γ (Gamma)**: Discount Factor. Determines the importance of future rewards vs immediate ones.
+
 ## ⚙️ Hyperparameters
 The following configurations were used in `RL.py` to train the agent:
 
