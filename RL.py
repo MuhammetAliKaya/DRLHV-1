@@ -4,6 +4,7 @@ import random
 import time
 import pygame
 import os
+import matplotlib.pyplot as plt 
 
 # files for save q-table
 npy_file = "q_table.npy"
@@ -33,11 +34,15 @@ if decision == "e":
     min_epsilon = 0.01
     decay_rate = 0.01
 
+    rewards_history = []
+    epsilon_history = []
+
     print(f"Eğitim Başlıyor... ({num_episodes} bölüm)")
     # training
     for episode in range(num_episodes):
         state, info = env.reset()
         done = False
+        total_reward = 0
 
         for step in range(max_steps):
             if random.uniform(0, 1) < epsilon:
@@ -52,11 +57,13 @@ if decision == "e":
                 + discount_rate * np.max(q_table[new_state, :])
                 - q_table[state, action]
             )
-
+            total_reward += reward
             state = new_state
             if done:
                 break
-
+        rewards_history.append(total_reward)
+        epsilon_history.append(epsilon)
+        
         epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(
             -decay_rate * episode
         )
@@ -68,6 +75,28 @@ if decision == "e":
     # save locally train output
     np.save(npy_file, q_table)
     print(f"NPY '{npy_file}' kaydedildi.")
+
+    print("Grafikler oluşturuluyor...")
+    
+    # 1. Grafik: Öğrenme Eğrisi (Rewards)
+    plt.figure(figsize=(12, 6))
+    plt.plot(rewards_history)
+    plt.title('Öğrenme Eğrisi (Bölüm Başına Toplam Ödül)')
+    plt.xlabel('Bölüm (Episode)')
+    plt.ylabel('Toplam Ödül')
+    plt.savefig('training_rewards.png') 
+    print(" - training_rewards.png kaydedildi.")
+    
+    # 2. Grafik: Epsilon Azalması
+    plt.figure(figsize=(12, 6))
+    plt.plot(epsilon_history, color='orange')
+    plt.title('Epsilon Decay (Keşif Oranı)')
+    plt.xlabel('Bölüm (Episode)')
+    plt.ylabel('Epsilon Değeri')
+    plt.savefig('epsilon_decay.png')
+    print(" - epsilon_decay.png kaydedildi.")
+    plt.close('all')
+    # ------------------------------------------
 
     headers = "Guney(0), Kuzey(1), Dogu(2), Bati(3), YolcuAl(4), YolcuBirak(5)"
     np.savetxt(csv_file, q_table, delimiter=",", header=headers, fmt="%.4f")
